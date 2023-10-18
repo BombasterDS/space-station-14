@@ -13,6 +13,10 @@
   - type: Sprite
     sprite: Structures/Piping/Atmospherics/tinyfan.rsi
     state: icon
+  - type: InteractionOutline
+  - type: Construction
+    graph: TinyFanGraph
+    node: tinyFan
   - type: Fixtures
     fixtures:
       fix1:
@@ -25,3 +29,30 @@
   - type: Tag
     tags:
       - SpreaderIgnore
+
+- type: entity
+  noSpawn: True
+  id: TinyFanFrame
+  name: tiny fan frame
+  description: A tiny fan, releasing a thin gust of air, lack of electronics
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: InteractionOutline
+  - type: Clickable
+  - type: Transform
+    anchored: true
+  - type: Physics
+    bodyType: Static
+  - type: Sprite
+    sprite: Structures/Piping/Atmospherics/tinyfan.rsi
+    state: frame
+  - type: Construction
+    graph: TinyFanGraph
+    node: tinyFanFrame
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+            bounds: "-0.5,-0.5,0.5,0.5"

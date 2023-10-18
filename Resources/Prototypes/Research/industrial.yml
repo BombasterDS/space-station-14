@@ -131,6 +131,7 @@
   - ThrusterMachineCircuitboard
   - GyroscopeMachineCircuitboard
   - MiniGravityGeneratorCircuitboard
+  - TinyFanBoard
 
 - type: technology
   id: RipleyAPLU

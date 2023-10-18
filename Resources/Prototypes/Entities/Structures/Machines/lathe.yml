@@ -132,6 +132,8 @@
       - CellRechargerCircuitboard
       - BorgChargerCircuitboard
       - WeaponCapacitorRechargerCircuitboard
+    dynamicRecipes: 
+      - TinyFanBoard
   - type: EmagLatheRecipes
     emagStaticRecipes:
        - CartridgePistol

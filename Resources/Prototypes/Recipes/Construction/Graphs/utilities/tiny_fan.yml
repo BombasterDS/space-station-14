@@ -1,0 +1,104 @@
+- type: constructionGraph
+  id: TinyFanGraph
+  start: start
+  graph:
+    - node: start
+      actions:
+      - !type:SpawnPrototype
+        prototype: SheetSteel1
+        amount: 3
+      - !type:SpawnPrototype
+        prototype: SheetPlastic1
+        amount: 2
+      - !type:DeleteEntity {}
+      edges:
+        - to: tinyFanFrame
+          steps:
+            - material: Steel
+              amount: 3
+              doAfter: 5
+            - material: Plastic
+              amount: 2
+              
+    - node: tinyFanFrame
+      entity: TinyFanFrame
+      edges:
+        - to: tinyFanWired
+          steps:
+            - material: Cable
+              amount: 2
+              doAfter: 2.5
+        - to: start
+          completed:
+            - !type:GivePrototype
+              prototype: SheetSteel1
+              amount: 3
+            - !type:GivePrototype
+              prototype: SheetPlastic1
+              amount: 2
+            - !type:DeleteEntity {}
+          steps:
+            - tool: Screwing
+              doAfter: 2
+              
+    - node: tinyFanWired
+      entity: TinyFanFrame
+      edges:
+        - to: tinyFanBoarded
+          steps:
+            - tag: TinyFanElectronics
+              store: board
+              name: Tiny Fan Electronics
+              icon:
+                sprite: "Objects/Misc/module.rsi"
+                state: "ssd"
+              doAfter: 1
+        - to: tinyFanFrame
+          completed:
+          - !type:GivePrototype
+            prototype: CableApcStack1
+            amount: 4
+          steps:
+          - tool: Cutting
+            doAfter: 2
+          
+    - node: tinyFanBoarded
+      entity: TinyFanFrame
+      edges:
+        - to: tinyFanSilvered
+          steps:
+            - material: Silver
+              amount: 2
+              doAfter: 1
+        - to: tinyFanWired
+          completed:
+          - !type:GivePrototype
+            prototype: TinyFanBoard
+            amount: 1
+          steps:
+          - tool: Prying
+            doAfter: 5
+          
+    - node: tinyFanSilvered
+      entity: TinyFanFrame
+      edges:
+        - to: tinyFan
+          steps: 
+          - tool: Screwing
+            doAfter: 1
+        - to: tinyFanBoarded
+          completed:
+          - !type:GivePrototype
+            prototype: IngotSilver1
+            amount: 2
+          steps:
+          - tool: Welding
+            doAfter: 2
+              
+    - node: tinyFan
+      entity: AtmosDeviceFanTiny
+      edges:
+        - to: tinyFanSilvered
+          steps:
+          - tool: Screwing
+            doAfter: 2

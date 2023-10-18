@@ -917,7 +917,7 @@
 
 - type: Tag
   id: SkeletonMotorcycleKeys
-
+    
 - type: Tag
   id: SmallMech
 
@@ -1002,6 +1002,9 @@
 - type: Tag
   id: TimerSignalElectronics
 
+- type: Tag
+  id: TinyFanElectronics
+  
 - type: Tag
   id: Toolbox
 

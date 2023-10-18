@@ -685,4 +685,13 @@
   materials:
      Steel: 100
      Glass: 900
-     Gold: 100     
+     Gold: 100    
+
+- type: latheRecipe
+  id: TinyFanBoard
+  result: TinyFanBoard
+  completetime: 6
+  materials:
+     Steel: 200
+     Glass: 300
+     Gold: 50       

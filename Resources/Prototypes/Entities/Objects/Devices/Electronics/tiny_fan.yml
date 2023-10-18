@@ -1,0 +1,19 @@
+- type: entity
+  parent: BaseElectronics
+  id: TinyFanBoard
+  name: tiny fan electronics
+  description: An electronics board used in tiny fans
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: ssd
+  - type: Tag
+    tags:
+      - DroneUsable
+      - TinyFanElectronics
+  - type: StaticPrice
+    price: 15
+  - type: MachineBoard
+    prototype: AtmosDeviceFanTiny
+    materialRequirements:
+      Silver: 2
