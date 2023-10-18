@@ -1,0 +1,13 @@
+<infocomm:InfocommConsole xmlns="https://spacestation14.io"
+                     xmlns:infocomm="clr-namespace:Content.Client.Infocomm"
+                     xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+                     Title="{Loc 'infocomm-ui-name'}"
+                     SetSize="700 500">
+    <BoxContainer Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True">
+        <controls:StripeBack Name="StationNameContainer">
+            <PanelContainer>
+                <Label Name="StationName" Align="Center" />
+            </PanelContainer>
+        </controls:StripeBack>
+    </BoxContainer>
+</infocomm:InfocommConsole>

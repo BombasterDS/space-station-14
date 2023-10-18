@@ -1,0 +1,29 @@
+- type: entity
+  parent: BaseComputer
+  id: InfocommComputer
+  name: information computer
+  description: Computer with information
+  components:
+  - type: Sprite
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: infocomm
+    - map: ["computerLayerKeys"]
+      state: security_key
+  - type: ApcPowerReceiver
+    powerLoad: 1000
+    priority: Low
+  - type: PointLight
+    radius: 1.5
+    energy: 1.6
+    color: "#b53ca1"
+  - type: ActivatableUI
+    key: enum.InfocommConsoleUiKey.Key
+  - type: UserInterface
+    interfaces:
+    - key: enum.InfocommConsoleUiKey.Key
+      type: InfocommConsoleBoundUserInterface

@@ -1,0 +1,24 @@
+- type: entity
+  parent: BaseItem
+  id: MetalPipe
+  name: metal pipe
+  description: it makes very loud noise.
+  components:
+  - type: Sprite
+    sprite: Objects/Fun/metal_pipe.rsi
+    state: icon
+  - type: EmitSoundOnLand
+    sound: 
+      path: /Audio/Effects/metal_pipe.ogg
+  - type: EmitSoundOnCollide
+    sound:
+      path: /Audio/Effects/metal_pipe.ogg
+  - type: MeleeWeapon
+    damage:
+      types:
+        Blunt: 5
+    soundHit:
+        path: /Audio/Effects/metal_pipe.ogg
+  - type: ItemCooldown
+  - type: UseDelay
+    delay: 0.5
