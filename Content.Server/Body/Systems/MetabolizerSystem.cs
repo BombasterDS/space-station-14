@@ -1,9 +1,9 @@
 using Content.Server.Body.Components;
-using Content.Server.Chemistry.Components.SolutionManager;
-using Content.Server.Chemistry.EntitySystems;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Body.Organ;
 using Content.Shared.Chemistry.Components;
+using Content.Shared.Chemistry.Components.SolutionManager;
+using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Database;
 using Content.Shared.FixedPoint;
@@ -156,10 +156,9 @@ namespace Content.Server.Body.Systems
 
                 foreach (var group in meta.MetabolismGroups)
                 {
-                    if (!proto.Metabolisms.ContainsKey(group.Id))
+                    if (!proto.Metabolisms.TryGetValue(group.Id, out var entry))
                         continue;
 
-                    var entry = proto.Metabolisms[group.Id];
                     var rate = entry.MetabolismRate * group.MetabolismRateModifier;
 
                     // Remove $rate, as long as there's enough reagent there to actually remove that much
