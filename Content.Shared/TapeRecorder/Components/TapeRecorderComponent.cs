@@ -23,11 +23,32 @@ public sealed partial class TapeRecorderComponent : Component
     public bool Active = false;
 
     /// <summary>
+    /// Paper that will spawn when printing transcript
+    /// </summary>
+    [DataField("paperPrototype")]
+    public string PaperPrototype = "Paper";
+
+    /// <summary>
     /// How fast can this tape recorder rewind
     /// Acts as a multiplier for the frameTime
     /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float RewindSpeed = 3f;
+
+    /// <summary>
+    /// Cooldown of print button
+    /// </summary>
+    [DataField]
+    public TimeSpan PrintCooldown = TimeSpan.FromSeconds(4);
+
+    /// <summary>
+    /// Sound on print transcript
+    /// </summary>
+    [DataField("printSound")]
+    public SoundSpecifier PrintSound = new SoundPathSpecifier("/Audio/Machines/diagnoser_printing.ogg")
+    {
+        Params = AudioParams.Default.WithVolume(-2f).WithMaxDistance(3f)
+    };
 
     /// <summary>
     /// What sound is used when play mode is activated
@@ -62,16 +83,6 @@ public sealed partial class TapeRecorderComponent : Component
     [DataField]
     public bool NeedUIUpdate = true;
 
-    //TODO: Replace with RSI
-    [DataField]
-    public SpriteSpecifier PlayIcon = new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/playarrow.svg.192dpi.png"));
-
-    [DataField]
-    public SpriteSpecifier RecordIcon = new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/dot.svg.192dpi.png"));
-
-    [DataField]
-    public SpriteSpecifier RewindIcon = new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/rewindarrow.svg.192dpi.png"));
-
     //Locale references
     [DataField]
     public LocId TextCantEject = "tape-recorder-locked";
@@ -90,15 +101,6 @@ public sealed partial class TapeRecorderComponent : Component
 
     [DataField]
     public LocId TextModeEmpty = "tape-recorder-empty";
-
-    [DataField]
-    public LocId TextVerbPlay = "verb-tape-recorder-playback";
-
-    [DataField]
-    public LocId TextVerbRecord = "verb-tape-recorder-record";
-
-    [DataField]
-    public LocId TextVerbRewind = "verb-tape-recorder-rewind";
 }
 
 [Serializable, NetSerializable]

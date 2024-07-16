@@ -83,6 +83,8 @@
   parent: CassetteTape
   id: CassetteTapeInterview
   components:
+    - type: Label
+      currentLabel: Interview with Garry Smosh
     - type: TapeCassette
       maxCapacity: 180
       recordedData:

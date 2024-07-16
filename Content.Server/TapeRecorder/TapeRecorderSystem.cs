@@ -1,22 +1,32 @@
 using Content.Server.Chat.Systems;
+using Content.Server.Hands.Systems;
+using Content.Server.Paper;
 using Content.Server.Speech;
 using Content.Server.VoiceMask;
 using Content.Shared.TapeRecorder;
 using Content.Shared.TapeRecorder.Components;
+using Content.Shared.TapeRecorder.Events;
+using Robust.Server.Audio;
 using System.Linq;
+using System.Text;
 
 namespace Content.Server.TapeRecorder;
 
 public sealed class TapeRecorderSystem : SharedTapeRecorderSystem
 {
 
+    [Dependency] private readonly AudioSystem _audioSystem = default!;
     [Dependency] private readonly ChatSystem _chatSystem = default!;
+    [Dependency] private readonly HandsSystem _handsSystem = default!;
+    [Dependency] private readonly MetaDataSystem _metaDataSystem = default!;
+    [Dependency] private readonly PaperSystem _paperSystem = default!;
 
     public override void Initialize()
     {
         base.Initialize();
 
         SubscribeLocalEvent<TapeRecorderComponent, ListenEvent>(OnListen);
+        SubscribeLocalEvent<TapeRecorderComponent, PrintTapeRecorderMessage>(OnPrintMessage);
     }
 
     protected override bool ProcessRecordingTapeRecorder(Entity<TapeRecorderComponent> tapeRecorder, float frameTime)
@@ -58,7 +68,7 @@ public sealed class TapeRecorderSystem : SharedTapeRecorderSystem
     /// </summary>
     protected override void ReplayMessagesInSegment(Entity<TapeRecorderComponent> tapeRecorder, TapeCassetteComponent tapeCassetteComponent, float segmentStart, float segmentEnd)
     {
-        TryComp<VoiceMaskComponent>(tapeRecorder, out var voiceMaskComponent);
+        EnsureComp<VoiceMaskComponent>(tapeRecorder, out var voiceMaskComponent);
 
         foreach (var messageToBeReplayed in tapeCassetteComponent.RecordedData.Where(x => x.Timestamp > tapeCassetteComponent.CurrentPosition && x.Timestamp <= segmentEnd))
         {
@@ -103,5 +113,50 @@ public sealed class TapeRecorderSystem : SharedTapeRecorderSystem
         }
 
         return false;
+    }
+
+    private void OnPrintMessage(EntityUid uid, TapeRecorderComponent tapeRecorder, PrintTapeRecorderMessage args)
+    {
+        var text = new StringBuilder();
+        var paper = EntityManager.SpawnEntity(tapeRecorder.PaperPrototype, Transform(uid).Coordinates);
+
+        if (!TryGetTapeCassette(uid, out var cassette))
+            return;
+
+        // Sorting list by time for overwrite order
+        var data = cassette.Comp.RecordedData;
+        data.Sort((x,y) => x.Timestamp.CompareTo(y.Timestamp));
+
+        // Looking if player's entity exists to give paper in its hand
+        var player = args.Actor;
+        if (Exists(player))
+            _handsSystem.PickupOrDrop(player, paper, checkActionBlocker: false);
+
+        if (!HasComp<PaperComponent>(paper))
+            return;
+
+        _metaDataSystem.SetEntityName(paper, Loc.GetString("tape-recorder-transcript-title"));
+
+        _audioSystem.PlayPvs(tapeRecorder.PrintSound, uid);
+
+        text.AppendLine(Loc.GetString("tape-recorder-print-start-text"));
+        text.AppendLine();
+        foreach (var message in cassette.Comp.RecordedData)
+        {
+            var name = "Unknown";
+            var time = TimeSpan.FromSeconds((double) message.Timestamp);
+
+            if (message.Name != null)
+                name = message.Name;
+
+            text.AppendLine(Loc.GetString("tape-recorder-print-message-text",
+                ("time", time.ToString(@"hh\:mm\:ss")),
+                ("source", name),
+                ("message", message.Message)));
+        }
+        text.AppendLine();
+        text.Append(Loc.GetString("tape-recorder-print-end-text"));
+
+        _paperSystem.SetContent(paper, text.ToString());
     }
 }

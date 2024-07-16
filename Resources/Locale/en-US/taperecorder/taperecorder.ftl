@@ -8,9 +8,6 @@ tape-recorder-empty = The tape recorder is empty.
 tape-recorder-recording = The tape recorder is in [color=red]recording[/color] mode.
 tape-recorder-rewinding = The tape recorder is in [color=yellow]rewinding[/color] mode.
 tape-recorder-locked = Cant eject while the tape recorder is running.
-verb-tape-recorder-record = Switch to Recording Mode
-verb-tape-recorder-playback = Switch to Playback Mode
-verb-tape-recorder-rewind = Switch to Rewinding Mode
 tape-recorder-voice-unknown = Unknown
 tape-recorder-voice-unintelligible = Unintelligible
 tape-recorder-message-corruption = #
@@ -24,3 +21,10 @@ tape-recorder-menu-playback-button = Playback
 tape-recorder-menu-record-button = Record
 tape-recorder-menu-rewind-button = Rewind
 tape-recorder-menu-print-button = Print record transcript
+tape-recorder-menu-cassette-label = Cassette tape: {$cassetteName}
+tape-recorder-menu-no-cassette-label = Cassette tape is not inserted
+
+tape-recorder-transcript-title = record transcript
+tape-recorder-print-start-text = [bold]Start of recorded transcript[/bold]
+tape-recorder-print-message-text = [bold][{$time}] {$source}: [/bold] {$message} 
+tape-recorder-print-end-text = [bold]End of recorded transcript[/bold]

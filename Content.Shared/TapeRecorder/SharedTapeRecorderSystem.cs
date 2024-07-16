@@ -3,11 +3,9 @@ using Content.Shared.Damage;
 using Content.Shared.DoAfter;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
-using Content.Shared.Interaction.Events;
 using Content.Shared.Tag;
 using Content.Shared.TapeRecorder.Components;
 using Content.Shared.TapeRecorder.Events;
-using Content.Shared.Timing;
 using Content.Shared.Toggleable;
 using Content.Shared.Verbs;
 using Robust.Shared.Audio.Systems;
@@ -17,8 +15,9 @@ using System.Text;
 using Robust.Shared.Timing;
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared.Popups;
-using Content.Shared.Shuttles.Components;
-using Linguini.Bundle.Errors;
+using System.Linq;
+using Content.Shared.Labels.Components;
+using Content.Shared.Destructible;
 
 namespace Content.Shared.TapeRecorder;
 
@@ -44,8 +43,8 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
         SubscribeLocalEvent<TapeRecorderComponent, EntRemovedFromContainerMessage>(OnCassetteRemoved);
         SubscribeLocalEvent<TapeRecorderComponent, EntInsertedIntoContainerMessage>(OnCassetteInserted);
         SubscribeLocalEvent<TapeRecorderComponent, ExaminedEvent>(OnRecorderExamined);
-        SubscribeLocalEvent<TapeRecorderComponent, GetVerbsEvent<AlternativeVerb>>(GetAltVerbs);
         SubscribeLocalEvent<TapeRecorderComponent, ToggleTapeRecorderMessage>(OnToggleMessage);
+        SubscribeLocalEvent<TapeRecorderComponent, ChangeModeTapeRecorderMessage>(OnChangeModeMessage);
         SubscribeLocalEvent<TapeRecorderComponent, ActivateInWorldEvent>(OnActivate);
 
         SubscribeLocalEvent<TapeCassetteComponent, ExaminedEvent>(OnTapeExamined);
@@ -91,7 +90,6 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
                     continue;
             }
         }
-
     }
 
     private void OnActivate(EntityUid uid, TapeRecorderComponent tapeRecorder, ActivateInWorldEvent args)
@@ -101,78 +99,14 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
     }
 
     /// <summary>
-    /// Right click menu to swap mode
-    /// </summary>
-    private void GetAltVerbs(Entity<TapeRecorderComponent> tapeRecorder, ref GetVerbsEvent<AlternativeVerb> args)
-    {
-        if (!args.CanInteract || !args.CanAccess)
-            return;
-
-        //Dont allow mode changes when the mode is active
-        if (tapeRecorder.Comp.Active)
-            return;
-
-        if (!TryGetTapeCassette(tapeRecorder, out var tapeCassette))
-            return;
-
-        //If we have tape capacity remaining
-        if (tapeCassette.Comp.MaxCapacity.TotalSeconds > tapeCassette.Comp.CurrentPosition)
-        {
-
-            if (tapeRecorder.Comp.Mode != TapeRecorderMode.Recording)
-            {
-                args.Verbs.Add(new AlternativeVerb()
-                {
-                    Text = Loc.GetString(tapeRecorder.Comp.TextVerbRecord),
-                    Act = () =>
-                    {
-                        SetMode(tapeRecorder, TapeRecorderMode.Recording);
-                    },
-                    Icon = tapeRecorder.Comp.RecordIcon,
-                    Priority = 1
-                });
-            }
-
-            if (tapeRecorder.Comp.Mode != TapeRecorderMode.Playing)
-            {
-                args.Verbs.Add(new AlternativeVerb()
-                {
-                    Text = Loc.GetString(tapeRecorder.Comp.TextVerbPlay),
-                    Act = () =>
-                    {
-                        SetMode(tapeRecorder, TapeRecorderMode.Playing);
-                    },
-                    Icon = tapeRecorder.Comp.PlayIcon,
-                    Priority = 2
-                });
-            }
-        }
-
-        //If there is tape to rewind and we are not already rewinding
-        if (tapeCassette.Comp.CurrentPosition > float.Epsilon && tapeRecorder.Comp.Mode != TapeRecorderMode.Rewinding)
-        {
-            args.Verbs.Add(new AlternativeVerb()
-            {
-                Text = Loc.GetString(tapeRecorder.Comp.TextVerbRewind),
-                Act = () =>
-                {
-                    SetMode(tapeRecorder, TapeRecorderMode.Rewinding);
-                },
-                Icon = tapeRecorder.Comp.RewindIcon,
-                Priority = 3
-            });
-        }
-    }
-
-    /// <summary>
-    /// Message when pressing start/stop button in recorder UI
+    /// UI message when pressing start/stop button in recorder UI
     /// </summary>
     private void OnToggleMessage(EntityUid uid, TapeRecorderComponent tapeRecorder, ToggleTapeRecorderMessage args)
     {
+        tapeRecorder.NeedUIUpdate = true;
+
         if (!TryGetTapeCassette(uid, out var cassette))
             return;
-
-        tapeRecorder.Active = args.Active;
 
         switch (tapeRecorder.Mode)
         {
@@ -191,6 +125,18 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
             default:
                 return;
         }
+    }
+
+    /// <summary>
+    /// UI message when choosing between recorder modes
+    /// </summary>
+    private void OnChangeModeMessage(EntityUid uid, TapeRecorderComponent tapeRecorder, ChangeModeTapeRecorderMessage args)
+    {
+        var choosenMode = args.Mode;
+
+        SetMode((uid, tapeRecorder), choosenMode);
+
+        tapeRecorder.NeedUIUpdate = true;
     }
 
     /// <summary>
@@ -276,7 +222,6 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
 
     protected virtual void ReplayMessagesInSegment(Entity<TapeRecorderComponent> tapeRecorder, TapeCassetteComponent tapeCassetteComponent, float segmentStart, float segmentEnd)
     {
-
     }
 
     /// <summary>
@@ -394,9 +339,9 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
                 _popupSystem.PopupClient(Loc.GetString(tapeRecorder.Comp.TextCantEject), tapeRecorder, args.User.Value);
         }
     }
+
     protected void OnCassetteRemoved(Entity<TapeRecorderComponent> tapeRecorder, ref EntRemovedFromContainerMessage args)
     {
-        //TODO: Allow removing tapes while running, requires getting the user who is ejecting
         SetMode(tapeRecorder, TapeRecorderMode.Empty);
         UpdateAppearance(tapeRecorder);
 
@@ -455,11 +400,11 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
     {
         if (tapeRecorder.Comp.Active)
         {
-            return StartRecording(tapeRecorder, user);
+            return Stop(tapeRecorder, user);
         }
         else
         {
-            return Stop(tapeRecorder, user);
+            return StartRecording(tapeRecorder, user);
         }
     }
 
@@ -487,11 +432,11 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
     {
         if (tapeRecorder.Comp.Active)
         {
-            return StartPlayback(tapeRecorder, user);
+            return Stop(tapeRecorder, user);
         }
         else
         {
-            return Stop(tapeRecorder, user);
+            return StartPlayback(tapeRecorder, user);
         }
     }
 
@@ -518,11 +463,11 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
     {
         if (tapeRecorder.Comp.Active)
         {
-            return StartRewinding(tapeRecorder, user);
+            return Stop(tapeRecorder, user);
         }
         else
         {
-            return Stop(tapeRecorder, user);
+            return StartRewinding(tapeRecorder, user);
         }
     }
 
@@ -630,15 +575,32 @@ public abstract class SharedTapeRecorderSystem : EntitySystem
 
         var hasCassette = TryGetTapeCassette(tapeRecorder, out var cassette);
         var hasData = false;
+        var currentTime = 0f;
+        var maxTime = 0f;
+        var cassetteName = "Unnamed";
+        var cooldown = comp.PrintCooldown;
 
         if (hasCassette)
-            hasData = cassette.Comp.RecordedData == null ? false : true; 
+        {
+            hasData = cassette.Comp.RecordedData.Any();
+            currentTime = cassette.Comp.CurrentPosition;
+            maxTime = (float)cassette.Comp.MaxCapacity.TotalSeconds;
+
+            if (TryComp<LabelComponent>(cassette, out var labelComp))
+                if (labelComp.CurrentLabel != null)
+                    cassetteName = labelComp.CurrentLabel;
+        }
 
         var state = new TapeRecorderState(
             comp.Active,
             comp.Mode,
             hasCassette,
-            hasData
+            hasData,
+            currentTime,
+            maxTime,
+            tapeRecorder.Comp.RewindSpeed,
+            cassetteName,
+            cooldown
             );
 
         _uiSystem.SetUiState(tapeRecorder.Owner, TapeRecorderUIKey.Key, state);

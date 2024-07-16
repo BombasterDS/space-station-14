@@ -2,6 +2,7 @@ using Content.Shared.TapeRecorder.Components;
 using Content.Shared.TapeRecorder.Events;
 using JetBrains.Annotations;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 
 namespace Content.Client.TapeRecorder.Ui;
 
@@ -9,6 +10,9 @@ namespace Content.Client.TapeRecorder.Ui;
 public sealed class TapeRecorderBoundUserInterface(EntityUid owner, Enum uiKey) : BoundUserInterface(owner, uiKey)
 {
     private TapeRecorderMenu? _menu;
+
+    [ViewVariables]
+    private TimeSpan _printCooldown;
 
     protected override void Open()
     {
@@ -19,9 +23,9 @@ public sealed class TapeRecorderBoundUserInterface(EntityUid owner, Enum uiKey) 
         _menu.OpenCentered();
     }
 
-    public void ToggleSwitch(bool active)
+    public void ToggleSwitch()
     {
-        SendMessage(new ToggleTapeRecorderMessage(active));
+        SendMessage(new ToggleTapeRecorderMessage());
     }
 
     public void ChangeMode(TapeRecorderMode mode)
@@ -29,11 +33,28 @@ public sealed class TapeRecorderBoundUserInterface(EntityUid owner, Enum uiKey) 
         SendMessage(new ChangeModeTapeRecorderMessage(mode));
     }
 
+    public void PrintTranscript()
+    {
+        SendMessage(new PrintTapeRecorderMessage());
+
+        if (_menu != null)
+            _menu.UpdatePrint(true);
+
+        Timer.Spawn(_printCooldown, () =>
+        {
+            if (_menu != null)
+                _menu.UpdatePrint(false);
+        });
+    }
+
     protected override void UpdateState(BoundUserInterfaceState state)
     {
         base.UpdateState(state);
 
         var castState = (TapeRecorderState) state;
+
+        _printCooldown = castState.PrintCooldown;
+
         _menu?.UpdateState(castState);
     }
 
