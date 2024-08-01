@@ -6,7 +6,7 @@ using Content.Server.Power.Nodes;
 using Content.Server.Power.NodeGroups;
 using Content.Server.StationEvents.Components;
 using Content.Shared.GameTicking.Components;
-using Content.Shared.Pinpointer;
+using Content.Shared.NavMap;
 using Content.Shared.Station.Components;
 using Content.Shared.Power;
 using JetBrains.Annotations;

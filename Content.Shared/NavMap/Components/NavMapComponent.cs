@@ -1,10 +1,8 @@
-using System.Linq;
-using Content.Shared.Atmos;
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 using Robust.Shared.Timing;
 
-namespace Content.Shared.Pinpointer;
+namespace Content.Shared.NavMap;
 
 /// <summary>
 /// Used to store grid data to be used for UIs.
@@ -54,7 +52,7 @@ public sealed class NavMapChunk(Vector2i origin)
 public enum NavMapChunkType : byte
 {
     // Values represent bit shift offsets when retrieving data in the tile array.
-    Invalid  = byte.MaxValue,
+    Invalid = byte.MaxValue,
     Floor = 0, // I believe floors have directional information for diagonal tiles?
     Wall = SharedNavMapSystem.Directions,
     Airlock = 2 * SharedNavMapSystem.Directions,

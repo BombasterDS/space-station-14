@@ -1,5 +1,5 @@
-using Content.Client.Pinpointer.UI;
-using Content.Shared.Pinpointer;
+using Content.Client.NavMap.UI;
+using Content.Shared.NavMap;
 using Content.Shared.Power;
 using Robust.Client.Graphics;
 using Robust.Shared.Collections;

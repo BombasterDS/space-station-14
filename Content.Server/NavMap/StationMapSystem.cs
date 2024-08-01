@@ -1,9 +1,9 @@
 using Content.Server.PowerCell;
-using Content.Shared.Pinpointer;
+using Content.Shared.NavMap;
 using Robust.Server.GameObjects;
 using Robust.Shared.Player;
 
-namespace Content.Server.Pinpointer;
+namespace Content.Server.NavMap;
 
 public sealed class StationMapSystem : EntitySystem
 {

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
-using Content.Client.Pinpointer.UI;
+using Content.Client.NavMap.UI;
 using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Shared.Medical.SuitSensor;

@@ -15,25 +15,35 @@ public sealed partial class PinpointerComponent : Component
     [DataField("component"), ViewVariables(VVAccess.ReadWrite)]
     public string? Component;
 
-    [DataField("mediumDistance"), ViewVariables(VVAccess.ReadWrite)]
+    /// <summary>
+    /// List of target finding by entity
+    /// </summary>
+    public List<EntityUid>? EntityTargetList;
+
+    /// <summary>
+    /// List of targets finding by prototypes
+    /// </summary>
+    public List<string>? PrototypeTargetList;
+
+    [ViewVariables(VVAccess.ReadWrite)]
     public float MediumDistance = 16f;
 
-    [DataField("closeDistance"), ViewVariables(VVAccess.ReadWrite)]
+    [ViewVariables(VVAccess.ReadWrite)]
     public float CloseDistance = 8f;
 
-    [DataField("reachedDistance"), ViewVariables(VVAccess.ReadWrite)]
+    [ViewVariables(VVAccess.ReadWrite)]
     public float ReachedDistance = 1f;
 
     /// <summary>
     ///     Pinpointer arrow precision in radians.
     /// </summary>
-    [DataField("precision"), ViewVariables(VVAccess.ReadWrite)]
+    [ViewVariables(VVAccess.ReadWrite)]
     public double Precision = 0.09;
 
     /// <summary>
     ///     Name to display of the target being tracked.
     /// </summary>
-    [DataField("targetName"), ViewVariables(VVAccess.ReadWrite)]
+    [ViewVariables(VVAccess.ReadWrite)]
     public string? TargetName;
 
     /// <summary>

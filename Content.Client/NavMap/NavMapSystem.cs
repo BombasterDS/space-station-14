@@ -1,7 +1,7 @@
-using Content.Shared.Pinpointer;
+using Content.Shared.NavMap;
 using Robust.Shared.GameStates;
 
-namespace Content.Client.Pinpointer;
+namespace Content.Client.NavMap;
 
 public sealed partial class NavMapSystem : SharedNavMapSystem
 {

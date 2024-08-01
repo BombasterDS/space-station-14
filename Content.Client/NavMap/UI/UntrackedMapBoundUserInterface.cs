@@ -1,6 +1,6 @@
 using Robust.Client.UserInterface;
 
-namespace Content.Client.Pinpointer.UI;
+namespace Content.Client.NavMap.UI;
 
 public sealed class UntrackedStationMapBoundUserInterface : BoundUserInterface
 {

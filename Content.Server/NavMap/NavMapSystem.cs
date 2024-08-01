@@ -7,14 +7,14 @@ using Content.Shared.Database;
 using Content.Shared.Examine;
 using Content.Shared.Localizations;
 using Content.Shared.Maps;
-using Content.Shared.Pinpointer;
+using Content.Shared.NavMap;
 using JetBrains.Annotations;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Timing;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Content.Server.Pinpointer;
+namespace Content.Server.NavMap;
 
 /// <summary>
 /// Handles data to be used for in-grid map displays.

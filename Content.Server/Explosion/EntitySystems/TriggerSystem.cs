@@ -3,7 +3,6 @@ using Content.Server.Body.Systems;
 using Content.Server.Chemistry.Containers.EntitySystems;
 using Content.Server.Explosion.Components;
 using Content.Server.Flash;
-using Content.Server.Pinpointer;
 using Content.Shared.Flash.Components;
 using Content.Server.Radio.EntitySystems;
 using Content.Shared.Chemistry.Components;
@@ -30,9 +29,8 @@ using Robust.Shared.Physics.Events;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
-using Robust.Shared.Player;
-using Content.Shared.Coordinates;
 using Robust.Shared.Utility;
+using Content.Server.NavMap;
 
 namespace Content.Server.Explosion.EntitySystems
 {

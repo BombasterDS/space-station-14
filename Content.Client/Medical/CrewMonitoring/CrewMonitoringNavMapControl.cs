@@ -1,4 +1,4 @@
-using Content.Client.Pinpointer.UI;
+using Content.Client.NavMap.UI;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Timing;

@@ -1,7 +1,6 @@
 using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Shared.Input;
-using Content.Shared.Pinpointer;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
@@ -19,8 +18,9 @@ using JetBrains.Annotations;
 using Content.Shared.Atmos;
 using System.Linq;
 using Robust.Shared.Utility;
+using Content.Shared.NavMap;
 
-namespace Content.Client.Pinpointer.UI;
+namespace Content.Client.NavMap.UI;
 
 /// <summary>
 /// Displays the nav map data of the specified grid.

@@ -8,7 +8,7 @@ using Content.Server.Communications;
 using Content.Server.DeviceNetwork.Components;
 using Content.Server.DeviceNetwork.Systems;
 using Content.Server.GameTicking.Events;
-using Content.Server.Pinpointer;
+using Content.Server.NavMap;
 using Content.Server.Popups;
 using Content.Server.RoundEnd;
 using Content.Server.Screens.Components;

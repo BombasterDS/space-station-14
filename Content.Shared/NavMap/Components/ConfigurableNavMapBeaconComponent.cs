@@ -1,7 +1,7 @@
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 
-namespace Content.Shared.Pinpointer;
+namespace Content.Shared.NavMap;
 
 /// <summary>
 /// This is used for a <see cref="NavMapBeaconComponent"/> that can be configured with a UI.

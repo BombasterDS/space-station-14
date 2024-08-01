@@ -1,6 +1,6 @@
 using Robust.Shared.Serialization;
 
-namespace Content.Shared.Pinpointer;
+namespace Content.Shared.NavMap;
 
 [Serializable, NetSerializable]
 public enum StationMapUiKey : byte

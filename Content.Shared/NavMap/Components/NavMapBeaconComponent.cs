@@ -1,6 +1,6 @@
 using Robust.Shared.GameStates;
 
-namespace Content.Shared.Pinpointer;
+namespace Content.Shared.NavMap;
 
 /// <summary>
 /// Will show a marker on a NavMap.

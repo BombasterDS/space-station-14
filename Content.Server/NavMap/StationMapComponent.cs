@@ -1,4 +1,4 @@
-namespace Content.Server.Pinpointer;
+namespace Content.Server.NavMap;
 
 [RegisterComponent]
 public sealed partial class StationMapComponent : Component

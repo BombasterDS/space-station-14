@@ -4,7 +4,7 @@ using Content.Server.DeviceNetwork.Systems;
 using Content.Server.PowerCell;
 using Content.Shared.Medical.CrewMonitoring;
 using Content.Shared.Medical.SuitSensor;
-using Content.Shared.Pinpointer;
+using Content.Shared.NavMap;
 using Robust.Server.GameObjects;
 
 namespace Content.Server.Medical.CrewMonitoring;

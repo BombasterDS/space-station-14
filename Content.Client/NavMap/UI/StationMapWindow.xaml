@@ -1,6 +1,6 @@
 <controls:FancyWindow xmlns="https://spacestation14.io"
                       xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
-                      xmlns:ui="clr-namespace:Content.Client.Pinpointer.UI"
+                      xmlns:ui="clr-namespace:Content.Client.NavMap.UI"
                       Title="{Loc 'station-map-window-title'}"
                       Resizable="False"
                       SetSize="668 713"

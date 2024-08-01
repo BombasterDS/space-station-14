@@ -1,8 +1,8 @@
-using Content.Shared.Pinpointer;
+using Content.Shared.NavMap;
 using JetBrains.Annotations;
 using Robust.Client.UserInterface;
 
-namespace Content.Client.Pinpointer.UI;
+namespace Content.Client.NavMap.UI;
 
 [UsedImplicitly]
 public sealed class NavMapBeaconBoundUserInterface : BoundUserInterface
