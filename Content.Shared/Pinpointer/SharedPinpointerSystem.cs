@@ -1,15 +1,19 @@
 using Content.Shared.Administration.Logs;
 using Content.Shared.Database;
+using Content.Shared.DoAfter;
 using Content.Shared.Emag.Systems;
 using Content.Shared.Examine;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Interaction;
+using Content.Shared.Pinpointer.Components;
+using Robust.Shared.Serialization;
 
 namespace Content.Shared.Pinpointer;
 
 public abstract class SharedPinpointerSystem : EntitySystem
 {
-    [Dependency] private readonly ISharedAdminLogManager _adminLogger = default!;
+    [Dependency] protected readonly ISharedAdminLogManager _adminLogger = default!;
+    [Dependency] private readonly SharedDoAfterSystem _doAfterSystem = default!;
 
     public override void Initialize()
     {
@@ -17,25 +21,57 @@ public abstract class SharedPinpointerSystem : EntitySystem
         SubscribeLocalEvent<PinpointerComponent, GotEmaggedEvent>(OnEmagged);
         SubscribeLocalEvent<PinpointerComponent, AfterInteractEvent>(OnAfterInteract);
         SubscribeLocalEvent<PinpointerComponent, ExaminedEvent>(OnExamined);
+
+        SubscribeLocalEvent<PinpointerMultiTargetComponent, AfterInteractEvent>(OnMultipleAfterInteract);
     }
 
     /// <summary>
     ///     Set the target if capable
     /// </summary>
-    private void OnAfterInteract(EntityUid uid, PinpointerComponent component, AfterInteractEvent args)
+    private void OnAfterInteract(Entity<PinpointerComponent> pinpointer, ref AfterInteractEvent args)
     {
+        var comp = pinpointer.Comp;
+
         if (!args.CanReach || args.Target is not { } target)
             return;
 
-        if (!component.CanRetarget || component.IsActive)
+        if (!comp.CanRetarget || comp.IsActive)
             return;
 
-        // TODO add doafter once the freeze is lifted
         args.Handled = true;
-        component.Target = args.Target;
-        _adminLogger.Add(LogType.Action, LogImpact.Low, $"{ToPrettyString(args.User):player} set target of {ToPrettyString(uid):pinpointer} to {ToPrettyString(component.Target.Value):target}");
-        if (component.UpdateTargetName)
-            component.TargetName = component.Target == null ? null : Identity.Name(component.Target.Value, EntityManager);
+
+        StartRetarget(args.User, target, comp.RetargetTime);
+    }
+
+    private void OnMultipleAfterInteract(Entity<PinpointerMultiTargetComponent> pinpointer, ref AfterInteractEvent args)
+    {
+        var comp = pinpointer.Comp;
+
+        if (!args.CanReach || args.Target is not { } target)
+            return;;
+
+        if (!comp.CanAddTargets)
+            return;
+
+        args.Handled = true;
+
+        if (comp.AdditionalTargetsQueue.Count >= comp.AdditionalTargetsCount)
+        {
+            comp.AdditionalTargetsQueue.Dequeue();
+            comp.AdditionalTargetsQueue.Enqueue(target);
+        }
+        _adminLogger.Add(LogType.Action, LogImpact.Low, $"{ToPrettyString(args.User):player} added {ToPrettyString(target):target} as target to {ToPrettyString(pinpointer):pinpointer}");
+    }
+
+    private void StartRetarget(EntityUid user, EntityUid target, float time)
+    {
+        var doAfterEvent = new PinpointerTargetDoAfterEvent();
+        var doAfterArgs = new DoAfterArgs(EntityManager, user, time, doAfterEvent, target)
+        {
+            BreakOnHandChange = true
+        };
+
+        _doAfterSystem.TryStartDoAfter(doAfterArgs);
     }
 
     /// <summary>
@@ -83,6 +119,7 @@ public abstract class SharedPinpointerSystem : EntitySystem
         if (distance == pinpointer.DistanceToTarget)
             return;
 
+        pinpointer.PreviousDistance = pinpointer.DistanceToTarget;
         pinpointer.DistanceToTarget = distance;
         Dirty(uid, pinpointer);
     }

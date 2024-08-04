@@ -4,6 +4,8 @@ using System.Linq;
 using System.Numerics;
 using Robust.Shared.Utility;
 using Content.Server.Shuttles.Events;
+using Content.Shared.Pinpointer.Components;
+using Content.Shared.Database;
 using Content.Shared.IdentityManagement;
 
 namespace Content.Server.Pinpointer;
@@ -21,7 +23,24 @@ public sealed class PinpointerSystem : SharedPinpointerSystem
         _xformQuery = GetEntityQuery<TransformComponent>();
 
         SubscribeLocalEvent<PinpointerComponent, ActivateInWorldEvent>(OnActivate);
+        SubscribeLocalEvent<PinpointerComponent, PinpointerTargetDoAfterEvent>(OnDoAfter);
         SubscribeLocalEvent<FTLCompletedEvent>(OnLocateTarget);
+    }
+    private void OnDoAfter(Entity<PinpointerComponent> pinpointer, ref PinpointerTargetDoAfterEvent args)
+    {
+        if (args.Handled || args.Cancelled)
+            return;
+
+        if (args.Target is { })
+            return;
+
+        var comp = pinpointer.Comp;
+
+        args.Handled = true;
+        comp.Target = args.Target;
+        _adminLogger.Add(LogType.Action, LogImpact.Low, $"{ToPrettyString(args.User):player} set target of {ToPrettyString(pinpointer):pinpointer} to {ToPrettyString(args.Target):target}");
+        if (comp.UpdateTargetName)
+            comp.TargetName = comp.Target == null ? null : Identity.Name(comp.Target.Value, EntityManager);
     }
 
     public override bool TogglePinpointer(EntityUid uid, PinpointerComponent? pinpointer = null)
@@ -58,15 +77,16 @@ public sealed class PinpointerSystem : SharedPinpointerSystem
 
     private void OnLocateTarget(ref FTLCompletedEvent ev)
     {
-        // This feels kind of expensive, but it only happens once per hyperspace jump
+        var query = EntityQueryEnumerator<PinpointerComponent, TransformComponent>();
+        var xform = Transform(ev.Entity);
 
-        // todo: ideally, you would need to raise this event only on jumped entities
-        // this code update ALL pinpointers in game
-        var query = EntityQueryEnumerator<PinpointerComponent>();
-
-        while (query.MoveNext(out var uid, out var pinpointer))
+        while (query.MoveNext(out var uid, out var pinpointer, out var transform))
         {
             if (pinpointer.CanRetarget)
+                continue;
+
+            // Check if the pinpointer on the ftled shuttle grid
+            if (transform.GridUid != xform.GridUid)
                 continue;
 
             LocateTarget(uid, pinpointer);
@@ -147,6 +167,7 @@ public sealed class PinpointerSystem : SharedPinpointerSystem
         if (target == null || !EntityManager.EntityExists(target.Value))
         {
             SetDistance(uid, Distance.Unknown, pinpointer);
+            UpdateAppearance(uid, pinpointer);
             return;
         }
 

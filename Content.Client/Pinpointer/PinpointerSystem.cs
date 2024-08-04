@@ -1,6 +1,8 @@
 using Content.Shared.Pinpointer;
+using Content.Shared.Pinpointer.Components;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Content.Client.Pinpointer;
 
@@ -20,8 +22,12 @@ public sealed class PinpointerSystem : SharedPinpointerSystem
         var query = EntityQueryEnumerator<PinpointerComponent, SpriteComponent>();
         while (query.MoveNext(out var _, out var pinpointer, out var sprite))
         {
-            if (!pinpointer.HasTarget)
+            if (!pinpointer.IsActive)
                 continue;
+
+            if (pinpointer.DistanceToTarget == pinpointer.PreviousDistance)
+                continue;
+
             var eye = _eyeManager.CurrentEye;
             var angle = pinpointer.ArrowAngle + eye.Rotation;
 
